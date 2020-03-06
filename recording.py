@@ -4,21 +4,7 @@ import keyboard
 import time
 
 
-def record(neuropy):
-    data = {
-        'attention': [],
-        'meditation': [],
-        'delta': [],
-        'theta': [],
-        'lowAlpha': [],
-        'highAlhpa': [],
-        'lowBeta': [],
-        'highBeta': [],
-        'lowGamma': [],
-        'midGamma': [],
-        'event_stream': []
-    }
-    neuropy.start()
+def input_data(data, neuropy):
     while True:
         data['attention'].append(neuropy.attention)
         data['meditation'].append(neuropy.meditation)
@@ -48,6 +34,34 @@ def record(neuropy):
             data['event_stream'].append('D')
         else:
             data['event_stream'].append(0)
+
+        time.sleep(.1)
+
+
+def record(neuropy):
+    data = {
+        'attention': [],
+        'meditation': [],
+        'delta': [],
+        'theta': [],
+        'lowAlpha': [],
+        'highAlhpa': [],
+        'lowBeta': [],
+        'highBeta': [],
+        'lowGamma': [],
+        'midGamma': [],
+        'event_stream': []
+    }
+
+    neuropy.start()
+
+    while True:
+        if neuropy.poorSignal == 200:
+            input_data(data, neuropy)
+            break
+        else:
+            print("Bad signal, retrying connection...")
+            time.sleep(.1)
 
 
 def main():
