@@ -37,10 +37,10 @@ def input_data(data, neuropy):
             df.to_pickle('./session_'+ str(sn) + '.pkl')
             break
 
-	
-	print(neuropy.attention, neuropy.meditation)
 
-        time.sleep(.1)	
+	    print(neuropy.attention, neuropy.meditation)
+
+        time.sleep(.1)
 
 
 def record(neuropy):
@@ -66,7 +66,7 @@ def record(neuropy):
             break
         else:
             print("Bad signal, retrying connection...")
-	    print(neuropy.poorSignal, neuropy.attention)
+	        print(neuropy.poorSignal, neuropy.attention)
             time.sleep(1)
 
 
