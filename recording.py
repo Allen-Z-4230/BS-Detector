@@ -5,24 +5,18 @@ import time
 
 
 def input_data(data, neuropy):
+    print('RECORDING STARTED, YAYY')
     while True:
         data['attention'].append(neuropy.attention)
         data['meditation'].append(neuropy.meditation)
         data['delta'].append(neuropy.delta)
         data['theta'].append(neuropy.theta)
         data['lowAlpha'].append(neuropy.lowAlpha)
-        data['highAlhpa'].append(neuropy.highAlhpa)
+        data['highAlpha'].append(neuropy.highAlpha)
         data['lowBeta'].append(neuropy.lowBeta)
         data['highBeta'].append(neuropy.highBeta)
         data['lowGamma'].append(neuropy.lowGamma)
         data['midGamma'].append(neuropy.midGamma)
-
-        if keyboard.is_pressed('esc'):
-            neuropy.stop()
-            sn = input('Enter session number')
-            df = pd.DataFrame.from_dict(data)
-            df.to_pickle(f'./session_{sn}.pkl')
-            break
 
         if keyboard.is_pressed('B'):
             data['event_stream'].append('B')
@@ -35,7 +29,18 @@ def input_data(data, neuropy):
         else:
             data['event_stream'].append(0)
 
-        time.sleep(.1)
+        if keyboard.is_pressed('esc'):
+            print("RECORDING ENDED")
+	    neuropy.stop()
+            sn = raw_input('Enter session number')
+            df = pd.DataFrame.from_dict(data)
+            df.to_pickle('./session_'+ str(sn) + '.pkl')
+            break
+
+	
+	print(neuropy.attention, neuropy.meditation)
+
+        time.sleep(.1)	
 
 
 def record(neuropy):
@@ -45,7 +50,7 @@ def record(neuropy):
         'delta': [],
         'theta': [],
         'lowAlpha': [],
-        'highAlhpa': [],
+        'highAlpha': [],
         'lowBeta': [],
         'highBeta': [],
         'lowGamma': [],
@@ -56,14 +61,18 @@ def record(neuropy):
     neuropy.start()
 
     while True:
-        if neuropy.poorSignal == 200:
+        if neuropy.poorSignal < 80:
             input_data(data, neuropy)
             break
         else:
             print("Bad signal, retrying connection...")
-            time.sleep(.1)
+	    print(neuropy.poorSignal, neuropy.attention)
+            time.sleep(1)
 
 
 def main():
-    x = NeuroPy(dev_loc, 9600)
+    x = NeuroPy('/dev/tty.MindWaveMobile-DevA', 57600)
     record(x)
+
+if __name__=='__main__':
+	main()
