@@ -38,10 +38,12 @@ def create_raw(df, sfreq=10):
 
 
 def main():
-
-    epochs = mne.Epochs(create_raw(recordings[0]),
-                        events=extract_events(np.array(recordings[0]['event_stream'])),
+    epochs = mne.Epochs(create_raw(recordings[1]),
+                        events=extract_events(np.array(recordings[1]['event_stream'])),
                         event_id=event_id, tmin=tmin, tmax=tmax)
-
     epochs['bluffing'].average().plot()
     epochs['not_bluffing'].average().plot()
+
+
+if __name__ == '__main__':
+    main()
