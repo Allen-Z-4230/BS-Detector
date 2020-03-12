@@ -8,8 +8,9 @@ import mne
 recordings = [pd.read_pickle(f) for f in os.listdir('.') if f.endswith('.pkl')]
 
 # settings
-event_id = dict(call=1, no_call=2, not_bluffing=3, bluffing=4)
-tmin, tmax = -2, 2
+mne.set_log_level(verbose="warning")
+epoch_settings = dict(event_id=dict(call=1, no_call=2, not_bluffing=3, bluffing=4),
+                      tmin=-4, tmax=4)
 
 
 def extract_events(ev_stream):
@@ -26,6 +27,14 @@ def extract_events(ev_stream):
     return events.astype(int)
 
 
+def calc_iti(events, srate):
+    n_events = events.shape[0]
+    iti = np.zeros(n_events - 1)
+    for ind in range(1, n_events):
+        iti[ind - 1] = (events[ind] - events[ind-1])[0]
+    return iti/srate
+
+
 def create_raw(df, sfreq=10):
 
     # define data array, channel names, and channel types to create info object
@@ -35,6 +44,43 @@ def create_raw(df, sfreq=10):
     info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types='eeg')
 
     return mne.io.RawArray(data, info)
+
+
+def create_epochs(raw):
+    epochs = mne.Epochs(create_raw(raw),
+                        events=extract_events(np.array(raw['event_stream'])),
+                        **epoch_settings, preload=True)
+    return epochs
+
+
+def get_features(epochs, tmin=-2, tmax=0, method=mean(), return_class_inds=True):
+    epochs = epochs['bluffing', 'not_bluffing']
+    X = epochs.crop(tmin=tmin, tmax=tmax).get_data().method(axis=2)
+    _, b_inds = epochs._getitem(['bluffing'], return_indices=True)
+    _, nb_inds = epochs._getitem(['not_bluffing'], return_indices=True)
+    if return_class_inds:
+        return X, b_inds, nb_inds
+    else:
+        return X
+
+
+def plot_pca(data, b_inds, nb_inds):
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel('Principal Component 1', fontsize=15)
+    ax.set_ylabel('Principal Component 2', fontsize=15)
+    ax.set_title('PCA Decomposition of Neurosky Features', fontsize=20)
+    targets = ['Bluffing', 'Not Bluffing']
+    colors = ['r', 'b']
+    inds = [b_inds, nb_inds]
+    for target, color, ind in zip(targets, colors, inds):
+        ax.scatter(data[ind, 0], data[ind, 1], c=color, s=50)
+        ax.legend(targets)
+        ax.grid()
+    plt.show()
+
+
+def tt_split(percent_training):
 
 
 def main():
