@@ -81,6 +81,7 @@ def plot_pca(data, b_inds, nb_inds):
 
 
 def tt_split(percent_training):
+    pass
 
 
 def main():
