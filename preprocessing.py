@@ -53,18 +53,23 @@ def create_epochs(raw):
     return epochs
 
 
-def get_features(epochs, tmin=-2, tmax=0, method=mean(), return_class_inds=True):
+def get_features(epochs, tmin=-4, tmax=0, bins=4):
     epochs = epochs['bluffing', 'not_bluffing']
-    X = epochs.crop(tmin=tmin, tmax=tmax).get_data().method(axis=2)
+    t_delt = (tmax - tmin)/bins
+    ranges = [(tmin + t_delt*i, tmin + t_delt*(i+1)) for i in range(0, bins)]
+    X = np.concatenate([epochs.copy().crop(tmin=min, tmax=max).get_data().mean(axis=2)
+                        for (min, max) in ranges], axis=1)
     _, b_inds = epochs._getitem(['bluffing'], return_indices=True)
     _, nb_inds = epochs._getitem(['not_bluffing'], return_indices=True)
-    if return_class_inds:
-        return X, b_inds, nb_inds
-    else:
-        return X
+
+    Y = np.zeros(X.shape[0])
+    Y[b_inds] = 0
+    Y[nb_inds] = 1
+
+    return X, Y
 
 
-def plot_pca(data, b_inds, nb_inds):
+def plot_pca(data, Y):
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel('Principal Component 1', fontsize=15)
@@ -72,7 +77,7 @@ def plot_pca(data, b_inds, nb_inds):
     ax.set_title('PCA Decomposition of Neurosky Features', fontsize=20)
     targets = ['Bluffing', 'Not Bluffing']
     colors = ['r', 'b']
-    inds = [b_inds, nb_inds]
+    inds = [Y == 0, Y == 1]
     for target, color, ind in zip(targets, colors, inds):
         ax.scatter(data[ind, 0], data[ind, 1], c=color, s=50)
         ax.legend(targets)

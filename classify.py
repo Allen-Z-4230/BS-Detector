@@ -21,14 +21,10 @@ events = extract_events(np.array(recordings[0]['event_stream']))
 epochs = [mne.concatenate_epochs(epochs[:3]), epochs[3], epochs[4]]
 
 for epoch in epochs:
-    X, b_inds, nb_inds = get_features(epoch, tmin=-2)
+    X, Y = get_features(epoch, tmin=-2)
     pca = PCA(n_components=2)
     X_t = pca.fit_transform(X)
-    plot_pca(X_t*10**12, b_inds, nb_inds)
-
-Y = np.zeros(X.shape[0])
-Y[b_inds] = 0
-Y[nb_inds] = 1
+    plot_pca(X_t*10**12, Y)
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y)
 
