@@ -13,15 +13,13 @@ from preprocessing import *
 # nblf = [ep['not_bluffing'].average() for ep in epochs]
 #############
 
-epochs = [create_epochs(recording) for recording in recordings[1:]]
-
 events = extract_events(np.array(recordings[0]['event_stream']))
 
 # subject 1: Adrianna, subject 2: Lucas, subject 3: Allen
 epochs = [mne.concatenate_epochs(epochs[:3]), epochs[3], epochs[4]]
 
 for epoch in epochs:
-    X, Y = get_features(epoch, tmin=-2)
+    X, Y = get_features(epoch)
     pca = PCA(n_components=2)
     X_t = pca.fit_transform(X)
     plot_pca(X_t*10**12, Y)
