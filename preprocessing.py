@@ -69,7 +69,7 @@ def get_features(epochs, tmin=-4, tmax=0, bins=4):
     return X, Y
 
 
-def plot_pca(data, Y):
+def plot_pca(data, Y, save = None):
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel('Principal Component 1', fontsize=15)
@@ -82,12 +82,8 @@ def plot_pca(data, Y):
         ax.scatter(data[ind, 0], data[ind, 1], c=color, s=50)
         ax.legend(targets)
         ax.grid()
+    plt.savefig(save, dpi = 300)
     plt.show()
-
-
-def tt_split(percent_training):
-    pass
-
 
 def main():
     epochs = mne.Epochs(create_raw(recordings[1]),
